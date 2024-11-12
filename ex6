@@ -1,0 +1,28 @@
+#!/bin/bash
+
+if [ "$EUID" -ne 0 ]; then
+     echo " veuillez executer ce script avec des 
+privileges d'administrateur(sudo)."
+     exit 1
+fi
+echo -n "entrez le nom de l'utilisateur:"
+read username
+if [ ! id "$username" &>/dev/null ]; then
+     echo " erreur: l'utilisateur '$username' n'existe pas."
+     exit 1
+fi
+echo " effacement des traces de connexion pour l'utilisateur '$username'..."
+cp /var/log/wtmp /var/log/wtmp.bak
+> /var/log/wtmp
+echo " log wtmp nettoyé."
+cp /var/log/btmp /var/log/btmp.bak
+> /var/log/btmp
+echo " log btmp nettoyé"
+cp /var/log/lastlog /var/log/lastlog.bak
+> /var/log/lastlog
+echo " log lastlog nettoyé"
+last | grep "$username" > /tmp/last_cleaned
+echo " historique des connexions affiché avec la commande 'last' nettoyé."
+echo " les traces de connexion de l'utilisateur 
+'$username'ont été supprimées."
+echo " note: les fichiers de logs originaux ont ete sauvegardés avec l'extension  '.bak'."
